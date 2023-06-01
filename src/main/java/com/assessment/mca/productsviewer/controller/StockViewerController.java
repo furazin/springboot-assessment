@@ -112,15 +112,16 @@ public class StockViewerController {
     private boolean isVisibleProduct(List<Sizes> sizes) {
         for (Sizes size : sizes) {
             List<Stock> stocksFromSize = stockService.getStocksFromSizeId(size.getId());
-            if (hasStock(stocksFromSize)) {
-                return true;
-            }
-            if (!CollectionUtils.isEmpty(stocksFromSize) && (isBackSoon(size) || hasSpecialSize(size))) {
+            if (hasStock(stocksFromSize) || isBackSoonOrSpecialSize(size, stocksFromSize)) {
                 return true;
             }
         }
         
         return false;
+    }
+
+    private boolean isBackSoonOrSpecialSize(Sizes size, List<Stock> stocksFromSize) {
+        return !CollectionUtils.isEmpty(stocksFromSize) && (isBackSoon(size) || hasSpecialSize(size));
     }
 
     private static boolean hasStock(List<Stock> stocksFromSize) {

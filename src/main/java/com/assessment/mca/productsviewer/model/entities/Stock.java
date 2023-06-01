@@ -7,8 +7,10 @@ import jakarta.validation.constraints.NotBlank;
 @Table(name = "stock")
 public class Stock {
     @Id
-    @Column(length=255, name = "ID")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STOCK_SEQ")
+    @SequenceGenerator(sequenceName = "stock_seq", name = "STOCK_SEQ", allocationSize = 1)
+    @Column(name = "id", nullable = false)
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SIZEID")
@@ -18,7 +20,7 @@ public class Stock {
     @Column(length=5)
     private String quantity;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
@@ -30,7 +32,7 @@ public class Stock {
         return size;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

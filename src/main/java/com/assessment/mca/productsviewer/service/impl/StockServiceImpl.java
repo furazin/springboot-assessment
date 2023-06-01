@@ -18,7 +18,7 @@ public class StockServiceImpl implements StockService {
     }
 
     @Override
-    public void insertStocks(List<Stock> stocks) {
+    public void insertStocksInBBDD(List<Stock> stocks) {
         stockRepository.saveAll(stocks);
     }
 

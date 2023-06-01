@@ -1,19 +1,21 @@
 package com.assessment.mca.productsviewer.controller;
 
+import com.assessment.mca.productsviewer.csv.CsvService;
 import com.assessment.mca.productsviewer.model.entities.Product;
 import com.assessment.mca.productsviewer.model.entities.Sizes;
 import com.assessment.mca.productsviewer.model.entities.Stock;
 import com.assessment.mca.productsviewer.service.ProductService;
 import com.assessment.mca.productsviewer.service.SizesService;
 import com.assessment.mca.productsviewer.service.StockService;
-import com.assessment.mca.productsviewer.service.csv.CsvService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -38,28 +40,30 @@ public class StockViewerController {
 
     @GetMapping("/view")
     public List<String> view() {
-        List<Product> productsFromCSV = getProductsFromCSV();
-        insertProductsInBBDD(productsFromCSV);
+        try {
+            List<Product> productsFromCSV = getProductsFromCSV();
+            insertProductsInBBDD(productsFromCSV);
 
-        List<Sizes> sizesFromCSV = getSizesFromCSV();
-        insertSizesInBBDD(sizesFromCSV);
+            List<Sizes> sizesFromCSV = getSizesFromCSV();
+            insertSizesInBBDD(sizesFromCSV);
 
-        List<Stock> stocksFromCSV = getStocksFromCSV();
-        insertStocksInBBDD(stocksFromCSV);
+            List<Stock> stocksFromCSV = getStocksFromCSV();
+            insertStocksInBBDD(stocksFromCSV);
 
-        final List<Product> visibleProducts = getProductsWithStock(productsFromCSV);
-        sortProductsBySequence(visibleProducts);
+            final List<Product> visibleProducts = getProductsWithStock(productsFromCSV);
+            sortProductsBySequence(visibleProducts);
 
-        return visibleProducts.stream().map(Product::getId).toList();
+            return visibleProducts.stream().map(Product::getId).toList();
+        } catch(Exception exception) {
+            throw new RuntimeException(exception);
+        }
     }
 
-    private List<Product> getProductsFromCSV() {
+    private List<Product> getProductsFromCSV() throws IOException {
         List<Product> productsFromCSV;
-        try {
-            productsFromCSV = csvService.readProductsFromCSV();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            File file = new ClassPathResource("csv/product.csv").getFile();
+            productsFromCSV = csvService.readProductsFromCSV(file);
+
         return productsFromCSV;
     }
 
@@ -67,13 +71,11 @@ public class StockViewerController {
         productService.insertProductsInBBDD(productsFromCSV);
     }
 
-    private List<Sizes> getSizesFromCSV() {
+    private List<Sizes> getSizesFromCSV() throws IOException {
         List<Sizes> sizesFromCSV;
-        try {
-            sizesFromCSV = csvService.readSizesFromCSV();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        File file = new ClassPathResource("csv/size.csv").getFile();
+        sizesFromCSV = csvService.readSizesFromCSV(file);
+
         return sizesFromCSV;
     }
 
@@ -81,36 +83,24 @@ public class StockViewerController {
         sizesService.insertSizesInBBDD(sizesFromCSV);
     }
 
-    private List<Stock> getStocksFromCSV() {
+    private List<Stock> getStocksFromCSV() throws IOException {
         List<Stock> stocksFromCSV;
-        try {
-            stocksFromCSV = csvService.readStocksFromCSV();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+
+        File file = new ClassPathResource("csv/stock.csv").getFile();
+        stocksFromCSV = csvService.readStocksFromCSV(file);
+
         return stocksFromCSV;
     }
 
     private void insertStocksInBBDD(List<Stock> stocksFromCSV) {
-        stockService.insertStocks(stocksFromCSV);
+        stockService.insertStocksInBBDD(stocksFromCSV);
     }
 
     private List<Product> getProductsWithStock(List<Product> products) {
         final List<Product> visibleProducts = new ArrayList<>();
         for (Product product : products) {
-            boolean isVisibleProduct = false;
             List<Sizes> sizes = sizesService.getSizesFromProductId(product.getId());
-            if (checkProductStock(sizes)) {
-                isVisibleProduct = true;
-            }
-            else {
-                boolean hasProductBackSoonSizes = checkBackSoonSizes(sizes);
-                boolean hasProductSpecialSizes = checkSpecialSizes(sizes);
-                if (hasProductBackSoonSizes || hasProductSpecialSizes) {
-                    isVisibleProduct = true;
-                }
-            }
-
+            boolean isVisibleProduct = isVisibleProduct(sizes);
             if (isVisibleProduct) {
                 visibleProducts.add(product);
             }
@@ -119,54 +109,33 @@ public class StockViewerController {
         return visibleProducts;
     }
 
-    private boolean checkProductStock(List<Sizes> sizes) {
+    private boolean isVisibleProduct(List<Sizes> sizes) {
         for (Sizes size : sizes) {
             List<Stock> stocksFromSize = stockService.getStocksFromSizeId(size.getId());
-            for (Stock stock : stocksFromSize) {
-                if (Integer.parseInt(stock.getQuantity()) > 0) {
-                    return true;
-                }
+            if (hasStock(stocksFromSize)) {
+                return true;
             }
-        }
-
-        return false;
-    }
-
-    private boolean checkBackSoonSizes(List<Sizes> sizes) {
-        for (Sizes size : sizes) {
-            List<Stock> stocksFromSize = stockService.getStocksFromSizeId(size.getId());
-            if (!CollectionUtils.isEmpty(stocksFromSize) && isBackSoon(size)) {
+            if (!CollectionUtils.isEmpty(stocksFromSize) && (isBackSoon(size) || hasSpecialSize(size))) {
                 return true;
             }
         }
+        
+        return false;
+    }
 
+    private static boolean hasStock(List<Stock> stocksFromSize) {
+        for (Stock stock : stocksFromSize) {
+            if (Integer.parseInt(stock.getQuantity()) > 0) {
+                return true;
+            }
+        }
         return false;
     }
     private boolean isBackSoon(Sizes size) {
         return Boolean.parseBoolean(size.getBackSoon());
     }
 
-    private boolean checkSpecialSizes(List<Sizes> sizes) {
-        for (Sizes size : sizes) {
-            List<Stock> stocksFromSize = stockService.getStocksFromSizeId(size.getId());
-            if (!CollectionUtils.isEmpty(stocksFromSize) && hasSpecialSize(size)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private boolean hasSpecialSize(Sizes size) {
-        boolean hasSpecialSizeWithStock = false;
-            if (isSpecial(size)) {
-                hasSpecialSizeWithStock = true;
-            }
-
-        return hasSpecialSizeWithStock;
-    }
-
-    private static boolean isSpecial(Sizes size) {
         return Boolean.parseBoolean(size.getSpecial());
     }
 

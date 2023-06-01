@@ -7,6 +7,7 @@ import com.assessment.mca.productsviewer.model.entities.Stock;
 import com.assessment.mca.productsviewer.service.ProductService;
 import com.assessment.mca.productsviewer.service.SizesService;
 import com.assessment.mca.productsviewer.service.StockService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
@@ -23,6 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/api/store", produces = MediaType.APPLICATION_JSON_VALUE)
+@Slf4j
 public class StockViewerController {
 
     private final CsvService csvService;
@@ -55,6 +57,7 @@ public class StockViewerController {
 
             return sortedProductsIds(visibleProducts);
         } catch(Exception exception) {
+            log.error("error in reading csv");
             throw new RuntimeException(exception);
         }
     }

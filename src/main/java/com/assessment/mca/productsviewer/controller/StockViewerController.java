@@ -53,7 +53,7 @@ public class StockViewerController {
             final List<Product> visibleProducts = getProductsWithStock(productsFromCSV);
             sortProductsBySequence(visibleProducts);
 
-            return visibleProducts.stream().map(Product::getId).toList();
+            return sortedProductsIds(visibleProducts);
         } catch(Exception exception) {
             throw new RuntimeException(exception);
         }
@@ -139,7 +139,11 @@ public class StockViewerController {
         return Boolean.parseBoolean(size.getSpecial());
     }
 
-    private static void sortProductsBySequence(List<Product> visibleProducts) {
+    private void sortProductsBySequence(List<Product> visibleProducts) {
         visibleProducts.sort(Comparator.comparingInt((Product p) -> Integer.parseInt(p.getSeq())));
+    }
+
+    private List<String> sortedProductsIds(List<Product> visibleProducts) {
+        return visibleProducts.stream().map(Product::getId).toList();
     }
 }

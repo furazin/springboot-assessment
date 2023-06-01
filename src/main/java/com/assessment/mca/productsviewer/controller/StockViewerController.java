@@ -6,6 +6,7 @@ import com.assessment.mca.productsviewer.model.entities.Stock;
 import com.assessment.mca.productsviewer.service.ProductService;
 import com.assessment.mca.productsviewer.service.SizesService;
 import com.assessment.mca.productsviewer.service.StockService;
+import com.assessment.mca.productsviewer.service.csv.CsvService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
@@ -22,12 +23,14 @@ import java.util.List;
 @RequestMapping(path = "/api/store", produces = MediaType.APPLICATION_JSON_VALUE)
 public class StockViewerController {
 
+    private final CsvService csvService;
     private final ProductService productService;
     private final SizesService sizesService;
     private final StockService stockService;
 
     @Autowired
-    public StockViewerController(ProductService productService, SizesService sizesService, StockService stockService) {
+    public StockViewerController(CsvService csvService, ProductService productService, SizesService sizesService, StockService stockService) {
+        this.csvService = csvService;
         this.productService = productService;
         this.sizesService = sizesService;
         this.stockService = stockService;
@@ -53,7 +56,7 @@ public class StockViewerController {
     private List<Product> getProductsFromCSV() {
         List<Product> productsFromCSV;
         try {
-            productsFromCSV = productService.readProductsFromCSV();
+            productsFromCSV = csvService.readProductsFromCSV();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -67,7 +70,7 @@ public class StockViewerController {
     private List<Sizes> getSizesFromCSV() {
         List<Sizes> sizesFromCSV;
         try {
-            sizesFromCSV = sizesService.readSizesFromCSV();
+            sizesFromCSV = csvService.readSizesFromCSV();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -81,7 +84,7 @@ public class StockViewerController {
     private List<Stock> getStocksFromCSV() {
         List<Stock> stocksFromCSV;
         try {
-            stocksFromCSV = stockService.readStocksFromCSV();
+            stocksFromCSV = csvService.readStocksFromCSV();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

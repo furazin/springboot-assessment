@@ -1,6 +1,6 @@
 # Springboot assessment
 
-Este proyecto consiste en una aplicación SpringBoot que resuelte un problema a la hora de tener que mostrar productos con stock disponible para comprar.
+Este proyecto consiste en una aplicación SpringBoot que resuelve un problema a la hora de tener que mostrar productos con stock disponible para comprar.
 
 Para ello se deben comprobar todas las tallas de cada producto para ver si tienen stock, y en caso de
 que ninguna talla tenga stock, ese producto no deberá mostrarse en la parrilla.

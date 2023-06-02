@@ -21,9 +21,9 @@ Se quiere que ofrezca como salida **la lista de identificadores de producto, ord
 
 Se ha desarrollado la llamada a un endpoint GET `/view` el cual lee de tres ficheros csv previamente cargados en la carpeta resources del proyecto (**product.csv**, **size.csv** y **stock.csv**). Una vea leídas las filas de los ficheros introduce los datos de los mismos en su tabla correspondiente de base de datos PRODUCT, SIZES y STOCK.
 
-Se ha dockerizado una imagen de base de datos Oracle de la web de Oracle Container Registry:
+Para el acceso alos datos en base de datos se ha dockerizado una imagen de base de datos Oracle de la web de Oracle Container Registry: https://container-registry.oracle.com/ords/f?p=113:4:4645343493925:::4:P4_REPOSITORY,AI_REPOSITORY,AI_REPOSITORY_NAME,P4_REPOSITORY_NAME,P4_EULA_ID,P4_BUSINESS_AREA_ID:803,803,Oracle%20Database%20Express%20Edition,Oracle%20Database%20Express%20Edition,1,0&cs=36H_3yMMaqW1zwAqWQGTyfUO4QDqNnUCzYvoA4fD1cH8sKC0JM9TGkBQ_5kdcZRcZ0r3XMhTSEiv_8teFKvlR6w
 
-`$ docker run -d --name <oracle-db>
+`$ docker run -d -p 1521:1521 --name oracle-express
 container-registry.oracle.com/database/express:21.3.0-xe`
 
 ``` sql

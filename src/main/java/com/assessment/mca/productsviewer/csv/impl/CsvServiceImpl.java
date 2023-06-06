@@ -7,6 +7,7 @@ import com.assessment.mca.productsviewer.model.repository.ProductRepository;
 import com.assessment.mca.productsviewer.model.repository.SizesRepository;
 import com.assessment.mca.productsviewer.csv.CsvService;
 import org.apache.commons.csv.CSVFormat;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -21,6 +22,7 @@ public class CsvServiceImpl implements CsvService {
     private final ProductRepository productRepository;
     private final SizesRepository sizesRepository;
 
+    @Autowired
     public CsvServiceImpl(ProductRepository productRepository, SizesRepository sizesRepository) {
         this.productRepository = productRepository;
         this.sizesRepository = sizesRepository;

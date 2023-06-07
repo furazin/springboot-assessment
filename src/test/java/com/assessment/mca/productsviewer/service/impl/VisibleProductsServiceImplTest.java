@@ -50,7 +50,7 @@ class VisibleProductsServiceImplTest {
         // then
         assertNotNull(result);
         verify(sizesService, times(2)).getSizesFromProductId(anyString());
-        verify(stockService, times(2)).getStocksFromSizeId(anyString());
+        verify(stockService, times(4)).getStocksFromSizeId(anyString());
     }
 
     @Test
@@ -80,7 +80,7 @@ class VisibleProductsServiceImplTest {
         // then
         assertNotNull(result);
         verify(sizesService, times(2)).getSizesFromProductId(anyString());
-        verify(stockService, times(2)).getStocksFromSizeId(anyString());
+        verify(stockService, times(4)).getStocksFromSizeId(anyString());
     }
 
     @Test
@@ -95,7 +95,7 @@ class VisibleProductsServiceImplTest {
         // then
         assertNotNull(result);
         verify(sizesService, times(2)).getSizesFromProductId(anyString());
-        verify(stockService, times(2)).getStocksFromSizeId(anyString());
+        verify(stockService, times(4)).getStocksFromSizeId(anyString());
     }
 
     private static List<Stock> buildStocks(boolean hasQuantity) {

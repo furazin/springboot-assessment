@@ -11,9 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class VisibleProductsServiceImpl implements VisibleProductsService {
@@ -51,18 +49,21 @@ public class VisibleProductsServiceImpl implements VisibleProductsService {
     }
 
     private boolean isVisibleProduct(List<Sizes> sizes) {
+        Map<String, Boolean> specialSizesByProductId = new HashMap<>();
+        int numberOfVisibleSizes = 0;
         for (Sizes size : sizes) {
             List<Stock> stocksFromSize = stockService.getStocksFromSizeId(size.getId());
-            if (hasStock(stocksFromSize) || isBackSoonOrSpecialSize(size, stocksFromSize)) {
-                return true;
+            if (hasStockOrBackSoon(size, stocksFromSize)) {
+                numberOfVisibleSizes++;
+                updateSpecialSizesByProductMap(specialSizesByProductId, size);
             }
         }
 
-        return false;
+        return hasProductWithVisibleSizes(specialSizesByProductId) || numberOfVisibleSizes > 1;
     }
 
-    private boolean isBackSoonOrSpecialSize(Sizes size, List<Stock> stocksFromSize) {
-        return !CollectionUtils.isEmpty(stocksFromSize) && (isBackSoon(size) || hasSpecialSize(size));
+    private boolean hasStockOrBackSoon(Sizes size, List<Stock> stocksFromSize) {
+        return (!CollectionUtils.isEmpty(stocksFromSize)) && hasStock(stocksFromSize) || isBackSoon(size);
     }
 
     private static boolean hasStock(List<Stock> stocksFromSize) {
@@ -77,8 +78,17 @@ public class VisibleProductsServiceImpl implements VisibleProductsService {
         return Boolean.parseBoolean(size.getBackSoon());
     }
 
+    private void updateSpecialSizesByProductMap(Map<String, Boolean> specialSizesByProductId, Sizes size) {
+        boolean hasSpecialSizes = hasSpecialSize(size);
+        specialSizesByProductId.put(size.getId(), hasSpecialSizes);
+    }
+
     private boolean hasSpecialSize(Sizes size) {
         return Boolean.parseBoolean(size.getSpecial());
+    }
+
+    boolean hasProductWithVisibleSizes (Map<String, Boolean> specialSizesByProductId) {
+        return specialSizesByProductId.containsValue(true) && specialSizesByProductId.containsValue(false);
     }
 
     private void sortProductsBySequence(List<Product> visibleProducts) {

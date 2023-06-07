@@ -3,6 +3,7 @@ package com.assessment.mca.productsviewer.service.impl;
 import com.assessment.mca.productsviewer.model.entities.Product;
 import com.assessment.mca.productsviewer.model.entities.Sizes;
 import com.assessment.mca.productsviewer.model.entities.Stock;
+import com.assessment.mca.productsviewer.model.repository.ProductRepository;
 import com.assessment.mca.productsviewer.service.SizesService;
 import com.assessment.mca.productsviewer.service.StockService;
 import com.assessment.mca.productsviewer.service.VisibleProductsService;
@@ -17,18 +18,20 @@ import java.util.List;
 @Service
 public class VisibleProductsServiceImpl implements VisibleProductsService {
     private final SizesService sizesService;
-
     private final StockService stockService;
+    private final ProductRepository productRepository;
 
     @Autowired
-    public VisibleProductsServiceImpl(SizesService sizesService, StockService stockService) {
+    public VisibleProductsServiceImpl(SizesService sizesService, StockService stockService, ProductRepository productRepository) {
         this.sizesService = sizesService;
         this.stockService = stockService;
+        this.productRepository = productRepository;
     }
 
     @Override
-    public List<String> getVisibleProducts(List<Product> products) {
-        final List<Product> visibleProducts = getProductsWithStock(products);
+    public List<String> getVisibleProducts() {
+        List<Product> productsFromBD = productRepository.findAll();
+        final List<Product> visibleProducts = getProductsWithStock(productsFromBD);
         sortProductsBySequence(visibleProducts);
 
         return sortedProductsIds(visibleProducts);

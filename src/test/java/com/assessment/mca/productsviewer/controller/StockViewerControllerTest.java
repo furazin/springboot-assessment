@@ -26,10 +26,11 @@ class StockViewerControllerTest {
     }
 
     @Test
-    void shouldThrowErrorWhenReadingProductsFromCSV(){
+    void shouldThrowErrorWhenReadingProductsFromCSV() throws IOException {
         // given
         RuntimeException ioException = mock(RuntimeException.class);
         when(ioException.getMessage()).thenReturn("error reading");
+        doThrow(ioException).when(csvDataService).readAndPersistData();
 
         // when
         try {
@@ -41,17 +42,13 @@ class StockViewerControllerTest {
 
     @Test
     void shouldView() throws IOException {
-        // given
-        List<Product> products = buildProducts();
-        when(csvDataService.readAndPersistData()).thenReturn(products);
-
         // when
         List<String> result = stockViewerController.view();
 
         // then
         assertNotNull(result);
         verify(csvDataService).readAndPersistData();
-        verify(visibleProductsService).getVisibleProducts(anyList());
+        verify(visibleProductsService).getVisibleProducts();
     }
 
     private static List<Product> buildProducts() {

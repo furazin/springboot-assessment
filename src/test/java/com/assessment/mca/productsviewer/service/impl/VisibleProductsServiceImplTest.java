@@ -3,6 +3,7 @@ package com.assessment.mca.productsviewer.service.impl;
 import com.assessment.mca.productsviewer.model.entities.Product;
 import com.assessment.mca.productsviewer.model.entities.Sizes;
 import com.assessment.mca.productsviewer.model.entities.Stock;
+import com.assessment.mca.productsviewer.model.repository.ProductRepository;
 import com.assessment.mca.productsviewer.service.SizesService;
 import com.assessment.mca.productsviewer.service.StockService;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +23,9 @@ class VisibleProductsServiceImplTest {
 
     private final StockService stockService = mock(StockService.class);
 
-    private VisibleProductsServiceImpl visibleProductsService = new VisibleProductsServiceImpl(sizesService, stockService);
+    private final ProductRepository productRepository = mock(ProductRepository.class);
+
+    private final VisibleProductsServiceImpl visibleProductsService = new VisibleProductsServiceImpl(sizesService, stockService, productRepository);
 
     private List<Product> products;
     private List<Sizes> sizes;
@@ -36,33 +39,19 @@ class VisibleProductsServiceImplTest {
 
         when(sizesService.getSizesFromProductId(anyString())).thenReturn(sizes);
         when(stockService.getStocksFromSizeId(anyString())).thenReturn(stocks);
+        when(productRepository.findAll()).thenReturn(products);
     }
 
     @Test
     void shouldView(){
         // when
-        List<String> result = visibleProductsService.getVisibleProducts(products);
+        List<String> result = visibleProductsService.getVisibleProducts();
 
         // then
         assertNotNull(result);
         verify(sizesService, times(2)).getSizesFromProductId(anyString());
         verify(stockService, times(2)).getStocksFromSizeId(anyString());
     }
-
-//    @Test
-//    void shouldNotViewAnyProduct() throws IOException {
-//        // given
-//        when(sizesService.getSizesFromProductId(anyString())).thenReturn(new ArrayList<>());
-//        when(stockService.getStocksFromSizeId(anyString())).thenReturn(new ArrayList<>());
-//
-//        // when
-//        List<String> result = visibleProductsService.getVisibleProducts(products);
-//
-//        // then
-//        assertNotNull(result);
-//        verify(sizesService, times(0)).getSizesFromProductId(anyString());
-//        verify(stockService, times(0)).getStocksFromSizeId(anyString());
-//    }
 
     @Test
     void shouldNotViewAnyProductWhenNoStock() throws IOException {
@@ -71,7 +60,7 @@ class VisibleProductsServiceImplTest {
         when(stockService.getStocksFromSizeId(anyString())).thenReturn(stocks);
 
         // when
-        List<String> result = visibleProductsService.getVisibleProducts(products);
+        List<String> result = visibleProductsService.getVisibleProducts();
 
         // then
         assertNotNull(result);
@@ -86,7 +75,7 @@ class VisibleProductsServiceImplTest {
         when(sizesService.getSizesFromProductId(anyString())).thenReturn(sizes);
 
         // when
-        List<String> result = visibleProductsService.getVisibleProducts(products);
+        List<String> result = visibleProductsService.getVisibleProducts();
 
         // then
         assertNotNull(result);
@@ -101,7 +90,7 @@ class VisibleProductsServiceImplTest {
         when(sizesService.getSizesFromProductId(anyString())).thenReturn(sizes);
 
         // when
-        List<String> result = visibleProductsService.getVisibleProducts(products);
+        List<String> result = visibleProductsService.getVisibleProducts();
 
         // then
         assertNotNull(result);

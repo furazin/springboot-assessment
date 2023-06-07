@@ -1,6 +1,5 @@
 package com.assessment.mca.productsviewer.controller;
 
-import com.assessment.mca.productsviewer.model.entities.Product;
 import com.assessment.mca.productsviewer.service.CsvDataService;
 import com.assessment.mca.productsviewer.service.VisibleProductsService;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -29,9 +27,9 @@ public class StockViewerController {
     @GetMapping("/view")
     public List<String> view(){
         try {
-            List<Product> products = csvDataService.readAndPersistData();
+            csvDataService.readAndPersistData();
 
-            return visibleProductsService.getVisibleProducts(products);
+            return visibleProductsService.getVisibleProducts();
         }catch(Exception exception) {
             log.error("error in reading csv");
             throw new RuntimeException(exception);

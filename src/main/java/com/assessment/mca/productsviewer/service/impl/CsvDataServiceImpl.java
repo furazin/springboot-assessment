@@ -32,7 +32,7 @@ public class CsvDataServiceImpl implements CsvDataService {
     }
 
     @Override
-    public List<Product> readAndPersistData() throws IOException {
+    public void readAndPersistData() throws IOException {
         List<Product> productsFromCSV = getProductsFromCSV();
         insertProductsInBBDD(productsFromCSV);
 
@@ -41,7 +41,6 @@ public class CsvDataServiceImpl implements CsvDataService {
 
         List<Stock> stocksFromCSV = getStocksFromCSV();
         insertStocksInBBDD(stocksFromCSV);
-        return productsFromCSV;
     }
 
     private List<Product> getProductsFromCSV() throws IOException {
